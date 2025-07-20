@@ -135,3 +135,17 @@ def encode_diagnostic_group(df: pd.DataFrame, verbose: bool = True) -> pd.DataFr
         print(df[['Diagnostic Group', 'Diagnostic Group Code']].head())
 
     return df
+
+def drop_irrelevant_columns(df: pd.DataFrame, verbose: bool = True) -> pd.DataFrame:
+    """
+    Drop columns that are not relevant for modeling.
+    """
+    columns_to_drop = ['Info.ID', 'Name', 'Occupation', 'Indication']
+    df = df.drop(columns=columns_to_drop, errors='ignore')
+
+    if verbose:
+        print("\nRemaining columns after dropping irrelevant ones:")
+        print(df.columns)
+
+    return df
+

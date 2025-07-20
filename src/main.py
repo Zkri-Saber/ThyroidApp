@@ -7,13 +7,15 @@ from thyroid_analysis.preprocessing import (
     enforce_column_types,
     encode_categorical_columns,
     map_diagnostic_groups,
-    encode_diagnostic_group
+    encode_diagnostic_group,
+    drop_irrelevant_columns
 )
 from thyroid_analysis.eda import analyze_categorical_columns
 
+
 def main():
     file_path = 'data/ExactRealDatasetLU.xlsx'
-    
+
     # Step 0: Load dataset
     df = load_excel_dataset(file_path)
 
@@ -27,28 +29,30 @@ def main():
     ]
     df = convert_columns_to_numeric(df, thyroid_columns)
 
-    # Step 3: Enforce proper data types
+    # Step 3: Enforce correct data types
     df = enforce_column_types(df)
 
-    # Step 4: Encode Sex, Smoking, Marital status
+    # Step 4: Encode categorical variables
     df = encode_categorical_columns(df)
 
-    # Step 5: Map 'Dx' to simplified diagnostic group
+    # Step 5: Map 'Dx' to simplified diagnostic groups
     df = map_diagnostic_groups(df)
 
-    # Step 6: Encode diagnostic group as numeric label
+    # Step 6: Encode diagnostic groups as numerical labels
     df = encode_diagnostic_group(df)
 
-    # Step 7: Save bar plots of categorical features
-    categorical_columns = ['Sex', 'Smoking', 'Marital status']
+    # Step 7: EDA bar charts (Sex, Smoking, Marital status)
     analyze_categorical_columns(
         df,
-        columns=categorical_columns,
+        columns=['Sex', 'Smoking', 'Marital status'],
         show_plots=False,
         save_dir="outputs/eda"
     )
 
-    # Step 8: Final preview
+    # Step 8: Drop irrelevant columns
+    df = drop_irrelevant_columns(df)
+
+    # Step 9: Final preview
     print("\nFinal preview of processed dataset:")
     print(df.head(10))
 
