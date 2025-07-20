@@ -5,14 +5,15 @@ from thyroid_analysis.preprocessing import (
     remove_duplicates,
     convert_columns_to_numeric,
     enforce_column_types,
-    encode_categorical_columns
+    encode_categorical_columns,
+    map_diagnostic_groups
 )
 from thyroid_analysis.eda import analyze_categorical_columns
 
 def main():
     file_path = 'data/ExactRealDatasetLU.xlsx'
     
-    # Step 0: Load data
+    # Step 0: Load the dataset
     df = load_excel_dataset(file_path)
 
     # Step 1: Remove duplicate rows
@@ -28,10 +29,13 @@ def main():
     # Step 3: Enforce correct data types
     df = enforce_column_types(df)
 
-    # Step 4: Encode categorical columns
-    df = encode_categorical_columns(df, verbose=True)
+    # Step 4: Encode Sex, Smoking, Marital status
+    df = encode_categorical_columns(df)
 
-    # Step 5: Analyze and save categorical column bar charts
+    # Step 5: Map diagnostic group from 'Dx'
+    df = map_diagnostic_groups(df)
+
+    # Step 6: Analyze and save bar charts for categorical columns
     categorical_columns = ['Sex', 'Smoking', 'Marital status']
     analyze_categorical_columns(
         df,
@@ -40,8 +44,8 @@ def main():
         save_dir="outputs/eda"
     )
 
-    # Step 6: Final data preview
-    print("\nPreview of final cleaned and encoded dataset:")
+    # Final preview
+    print("\nPreview of final dataset:")
     print(df.head(10))
 
 

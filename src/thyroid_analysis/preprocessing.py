@@ -3,9 +3,6 @@
 import pandas as pd
 
 def remove_duplicates(df: pd.DataFrame, verbose: bool = True) -> pd.DataFrame:
-    """
-    Remove duplicate rows from the dataset.
-    """
     original_count = len(df)
     df_cleaned = df.drop_duplicates()
     cleaned_count = len(df_cleaned)
@@ -18,9 +15,6 @@ def remove_duplicates(df: pd.DataFrame, verbose: bool = True) -> pd.DataFrame:
 
 
 def convert_columns_to_numeric(df: pd.DataFrame, columns: list, verbose: bool = True) -> pd.DataFrame:
-    """
-    Convert specified columns to numeric, coercing errors to NaN.
-    """
     df[columns] = df[columns].apply(pd.to_numeric, errors='coerce')
     
     if verbose:
@@ -31,9 +25,6 @@ def convert_columns_to_numeric(df: pd.DataFrame, columns: list, verbose: bool = 
 
 
 def enforce_column_types(df: pd.DataFrame, verbose: bool = True) -> pd.DataFrame:
-    """
-    Explicitly cast selected columns to appropriate data types.
-    """
     type_map = {
         'Age': int,
         'Sex': 'category',
@@ -64,9 +55,6 @@ def enforce_column_types(df: pd.DataFrame, verbose: bool = True) -> pd.DataFrame
 
 
 def encode_categorical_columns(df: pd.DataFrame, verbose: bool = True) -> pd.DataFrame:
-    """
-    Apply predefined mappings to categorical columns: Sex, Smoking, Marital status.
-    """
     sex_mapping = {'Male': 0, 'Female': 1}
     smoking_mapping = {'No': 0, 'Passive': 1, 'Active': 2}
     marital_status_mapping = {'single': 0, 'married': 1}
@@ -79,7 +67,6 @@ def encode_categorical_columns(df: pd.DataFrame, verbose: bool = True) -> pd.Dat
         print("\nEncoded values (Age, Sex, Smoking, Marital status):")
         print(df[['Age', 'Sex', 'Smoking', 'Marital status']].head())
 
-        # Check for unmapped values
         if df['Sex'].isnull().any():
             print("\n⚠️ Unmapped 'Sex' values:")
             print(df[df['Sex'].isnull()])
@@ -91,5 +78,47 @@ def encode_categorical_columns(df: pd.DataFrame, verbose: bool = True) -> pd.Dat
         if df['Marital status'].isnull().any():
             print("\n⚠️ Unmapped 'Marital status' values:")
             print(df[df['Marital status'].isnull()])
+
+    return df
+
+
+def map_diagnostic_groups(df: pd.DataFrame, verbose: bool = True) -> pd.DataFrame:
+    """
+    Maps 'Dx' to a simplified diagnostic group in new column 'Diagnostic Group'.
+    """
+    mapping = {
+        'No Disease': 'No Disease',
+        'Hyperthyroidism': 'Hyperthyroidism',
+        'Hyperthyroidisim': 'Hyperthyroidism',
+        'hyperthyroid': 'Hyperthyroidism',
+        'hyper for 2 ys': 'Hyperthyroidism',
+        'hyperthyroid for 15 month': 'Hyperthyroidism',
+        'hyperthyroid for  3 ys': 'Hyperthyroidism',
+        'hyperthyroid for 6 ys': 'Hyperthyroidism',
+        'Graves Disease (GD), Hyperthyroidism': 'Hyperthyroidism',
+        'Hyperthyroidism, Multinodular Goiter (MNG)': 'Hyperthyroidism',
+        'Hyperthyroidism, Suspicious Thyroid Nodule': 'Hyperthyroidism',
+        'Hyperthyroidism, Multinodular Goiter (MNG), Suspicious Thyroid Nodule': 'Hyperthyroidism',
+        'Euthyroid, Papillary Thyroid Carcinoma (PTC)': 'Euthyroid',
+        'Euthyroid, Thyroid Nodule': 'Euthyroid',
+        'Euthyroid, Suspicious Thyroid Nodule': 'Euthyroid',
+        'Euthyroid, Multinodular Goiter (MNG)': 'Euthyroid',
+        'Euthyroid': 'Euthyroid',
+        'euthyroid': 'Euthyroid',
+        'Hypothyroidism': 'Hypothyroidism',
+        'hypothyroid': 'Hypothyroidism',
+        'Hypothyroidism, Suspicious Thyroid Nodule': 'Hypothyroidism',
+        'Hypothyroidism, Papillary Thyroid Carcinoma (PTC)': 'Hypothyroidism',
+        'Hypothyroidism, Multinodular Goiter (MNG)': 'Hypothyroidism',
+        'Hypothyroidism, Multinodular Goiter (MNG), Suspicious Thyroid Nodule': 'Hypothyroidism',
+        'Chronic Thyroiditis, Hypothyroidism': 'Hypothyroidism',
+        'Hypothyroidism, Papillary Thyroid Microcarcinoma': 'Hypothyroidism',
+    }
+
+    df['Diagnostic Group'] = df['Dx'].map(mapping)
+
+    if verbose:
+        print("\nDiagnostic group counts:")
+        print(df['Diagnostic Group'].value_counts())
 
     return df
