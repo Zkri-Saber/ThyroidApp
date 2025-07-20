@@ -7,8 +7,12 @@ from thyroid_analysis.preprocessing import (
     encode_categorical_columns,
     map_diagnostic_group_column,
     encode_diagnostic_group_column,
-    drop_irrelevant_columns
+    drop_irrelevant_columns,
+    impute_missing_values_knn,
+    impute_missing_values_mice,
+    
 )
+from thyroid_analysis.pipeline import df
 from thyroid_analysis.eda import (
     analyze_categorical_columns,
     analyze_numerical_columns
@@ -89,6 +93,21 @@ def main():
         ).interactive()
 
         chart.save(f'{col}_barchart.json')
+
+    # Step 11: Impute missing values using KNN and MICE
+    print("Missing values before imputation:")
+    print(df.isnull().sum()[df.isnull().sum() > 0]) 
+    if df.isnull().sum().any():
+        print("Imputing missing values...")
+    # Impute using KNN
+
+    df = impute_missing_values_knn(df)
+    print("After KNN Imputation:")
+    print(df.isnull().sum()[df.isnull().sum() > 0])
+
+    df = impute_missing_values_mice(df)
+    print("After MICE Imputation:")
+    print(df.isnull().sum()[df.isnull().sum() > 0])
 
 
 if __name__ == "__main__":
