@@ -1,90 +1,62 @@
-"""import os
-from pathlib import Path
+# src/thyroid_analysis/config.py
 
-# Base directories (project root → data, outputs)
-BASE_DIR   = Path(__file__).resolve().parent.parent.parent
-DATA_DIR   = BASE_DIR / "data"
-OUTPUT_DIR = BASE_DIR / "outputs"
-
-# Dataset settings
-EXACT_REAL_DATASET = DATA_DIR / "ExactRealDatasetLU.xlsx"
-SHEET_NAME         = "Sheet1"
-
-# Target column name in your Excel sheet
-TARGET_COLUMN      = "Dx"   # updated to match your actual header
-
-# Columns
-NUMERIC_COLUMNS    = [
-    "first TSH", "last TSH",
-    "first T4",  "last T4",
-    "first T3",  "last T3",
-    "first FT4", "last FT4",
-    "first FT3", "last FT3"
-]
-CATEGORICAL_COLUMNS = [
-    "Info.ID", "Name", "Age", "Sex", "Occupation",
-    "Smoking", "Marital status", "Indication"
-]
-
-# Imputation
-KNN_K = 5
-
-# Feature selection
-RFE_FEATURE_COUNT = 10
-PCA_COMPONENTS    = 5
-
-# Model hyperparameters
-RANDOM_FOREST_PARAMS = {
-    "n_estimators": 100,
-    "random_state": 42
-}
-
-# SMOTE settings
-SMOTE_SAMPLING_STRATEGY = "auto"
-"""
-##### File: src/thyroid_analysis/config.py
-
+# ========== Core Python ========== #
 import os
-from pathlib import Path
+import warnings
+from collections import Counter
 
-# Base directories
-# BASE_DIR points to the project root
-BASE_DIR = Path(__file__).resolve().parent.parent.parent
-DATA_DIR = BASE_DIR / "data"
-OUTPUT_DIR = BASE_DIR / "outputs"
+# ========== Data & Analysis ========== #
+import numpy as np
+import pandas as pd
 
-# Dataset settings
-EXACT_REAL_DATASET = DATA_DIR / "ExactRealDatasetLU.xlsx"
-SHEET_NAME = "Sheet1"
+# ========== Visualization ========== #
+import matplotlib.pyplot as plt
+import seaborn as sns
+import missingno as msno
+from matplotlib_venn import venn3
+import altair as alt
 
-# Target column name in your Excel sheet
-TARGET_COLUMN = "Dx"
+# ========== Machine Learning Models ========== #
+from sklearn.linear_model import LogisticRegression
+from sklearn.tree import DecisionTreeClassifier
+from sklearn.ensemble import (
+    RandomForestClassifier, GradientBoostingClassifier, AdaBoostClassifier
+)
+from xgboost import XGBClassifier
+from lightgbm import LGBMClassifier
+from catboost import CatBoostClassifier
+from sklearn.naive_bayes import GaussianNB
+from sklearn.svm import SVC
+from sklearn.neural_network import MLPClassifier
 
-# Columns
-NUMERIC_COLUMNS = [
-    "first TSH", "last TSH",
-    "first T4",  "last T4",
-    "first T3",  "last T3",
-    "first FT4", "last FT4",
-    "first FT3", "last FT3"
-]
-CATEGORICAL_COLUMNS = [
-    "Info.ID", "Name", "Age", "Sex", "Occupation",
-    "Smoking", "Marital status", "Indication"
-]
+# ========== Preprocessing & Feature Engineering ========== #
+from sklearn.preprocessing import StandardScaler
+from sklearn.impute import KNNImputer
+from sklearn.experimental import enable_iterative_imputer  # noqa
+from sklearn.impute import IterativeImputer
+from sklearn.decomposition import PCA
+from sklearn.feature_selection import RFE
 
-# Imputation
-KNN_K = 5
+# ========== Imbalanced Data Handling ========== #
+from imblearn.over_sampling import SMOTE
 
-# Feature selection
-RFE_FEATURE_COUNT = 10
-PCA_COMPONENTS = 5
+# ========== Model Evaluation & Metrics ========== #
+from sklearn.model_selection import (
+    train_test_split, StratifiedKFold, cross_val_predict, GridSearchCV
+)
+from sklearn.metrics import (
+    accuracy_score, precision_score, recall_score, f1_score,
+    roc_auc_score, cohen_kappa_score, confusion_matrix
+)
 
-# Model hyperparameters
-RANDOM_FOREST_PARAMS = {
-    "n_estimators": 100,
-    "random_state": 42
-}
+# ========== Statistical Imputation ========== #
+from statsmodels.imputation import mice
 
-# SMOTE settings
-SMOTE_SAMPLING_STRATEGY = "auto"
+# ========== Google Colab ========== #
+try:
+    from google.colab import drive
+except ImportError:
+    drive = None  # Optional: If not running in Colab
+
+# ========== Suppress Warnings ========== #
+warnings.filterwarnings("ignore")

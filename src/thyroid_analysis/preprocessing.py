@@ -1,78 +1,63 @@
-"""import pandas as pd
-import numpy as np
-from fancyimpute import KNN, IterativeImputer
-from sklearn.preprocessing import StandardScaler
-from sklearn.ensemble import IsolationForest
-from .config import NUMERIC_COLUMNS, KNN_K
-
-def convert_to_numeric(df: pd.DataFrame, cols=None) -> pd.DataFrame:
-    cols = cols or NUMERIC_COLUMNS
-    df[cols] = df[cols].apply(pd.to_numeric, errors="coerce")
-    return df
-
-def impute_knn(df: pd.DataFrame, k: int = KNN_K) -> pd.DataFrame:
-    # Only impute numeric columns
-    num_cols = df.select_dtypes(include=[np.number]).columns
-    imputer = KNN(k=k)
-    imputed = imputer.fit_transform(df[num_cols])
-    df[num_cols] = imputed
-    return df
-
-def impute_mice(df: pd.DataFrame) -> pd.DataFrame:
-    # Only impute numeric columns
-    num_cols = df.select_dtypes(include=[np.number]).columns
-    imputer = IterativeImputer(random_state=42)
-    imputed = imputer.fit_transform(df[num_cols])
-    df[num_cols] = imputed
-    return df
-
-def detect_and_remove_outliers(df: pd.DataFrame) -> pd.DataFrame:
-    # Use only numeric data to detect outliers
-    numeric = df.select_dtypes(include=[np.number])
-    iso = IsolationForest(contamination=0.01, random_state=42)
-    mask = iso.fit_predict(numeric)
-    return df.loc[mask == 1].reset_index(drop=True)
-
-def standardize(df: pd.DataFrame) -> pd.DataFrame:
-    scaler = StandardScaler()
-    numeric = df.select_dtypes(include=[np.number]).columns
-    df[numeric] = scaler.fit_transform(df[numeric])
-    return df
-"""
+# src/thyroid_analysis/preprocessing.py
 
 import pandas as pd
-import numpy as np
-from fancyimpute import KNN, IterativeImputer
-from sklearn.preprocessing import StandardScaler
-from sklearn.ensemble import IsolationForest
 
-from .config import NUMERIC_COLUMNS, KNN_K
+def remove_duplicates(df: pd.DataFrame, verbose: bool = True) -> pd.DataFrame:
+    """
+    Remove duplicate rows from the dataset.
+    """
+    original_count = len(df)
+    df_cleaned = df.drop_duplicates()
+    cleaned_count = len(df_cleaned)
 
-def convert_to_numeric(df: pd.DataFrame, cols=None) -> pd.DataFrame:
-    cols = cols or NUMERIC_COLUMNS
-    df[cols] = df[cols].apply(pd.to_numeric, errors="coerce")
+    if verbose:
+        print(f"Duplicates removed: {original_count - cleaned_count}")
+        print(f"Original rows: {original_count}, Cleaned rows: {cleaned_count}")
+
+    return df_cleaned
+
+
+def convert_columns_to_numeric(df: pd.DataFrame, columns: list, verbose: bool = True) -> pd.DataFrame:
+    """
+    Convert specified columns to numeric, coercing errors to NaN.
+    """
+    df[columns] = df[columns].apply(pd.to_numeric, errors='coerce')
+    
+    if verbose:
+        print("\nData types after numeric conversion:")
+        print(df[columns].dtypes)
+
     return df
 
-def impute_knn(df: pd.DataFrame, k: int = KNN_K) -> pd.DataFrame:
-    num_cols = df.select_dtypes(include=[np.number]).columns
-    imputer = KNN(k=k)
-    df[num_cols] = imputer.fit_transform(df[num_cols])
-    return df
 
-def impute_mice(df: pd.DataFrame) -> pd.DataFrame:
-    num_cols = df.select_dtypes(include=[np.number]).columns
-    imputer = IterativeImputer(random_state=42)
-    df[num_cols] = imputer.fit_transform(df[num_cols])
-    return df
+def enforce_column_types(df: pd.DataFrame, verbose: bool = True) -> pd.DataFrame:
+    """
+    Explicitly cast selected columns to appropriate data types.
+    """
+    type_map = {
+        'Age': int,
+        'Sex': 'category',
+        'Smoking': 'category',
+        'Marital status': 'category',
+        'first TSH': float,
+        'last TSH': float,
+        'first T4': float,
+        'last T4': float,
+        'first T3': float,
+        'last T3': float,
+        'first FT4': float,
+        'last FT4': float,
+        'first FT3': float,
+        'last FT3': float,
+        'Dx': 'category'
+    }
 
-def detect_and_remove_outliers(df: pd.DataFrame) -> pd.DataFrame:
-    numeric = df.select_dtypes(include=[np.number])
-    iso = IsolationForest(contamination=0.01, random_state=42)
-    mask = iso.fit_predict(numeric)
-    return df.loc[mask == 1].reset_index(drop=True)
+    for column, dtype in type_map.items():
+        if column in df.columns:
+            df[column] = df[column].astype(dtype)
 
-def standardize(df: pd.DataFrame) -> pd.DataFrame:
-    scaler = StandardScaler()
-    num_cols = df.select_dtypes(include=[np.number]).columns
-    df[num_cols] = scaler.fit_transform(df[num_cols])
+    if verbose:
+        print("\nData types after enforcing type casting:")
+        print(df[list(type_map.keys())].dtypes)
+
     return df

@@ -1,11 +1,10 @@
 import pandas as pd
-from .config import EXACT_REAL_DATASET, SHEET_NAME
 
-def load_data(path: str = None) -> pd.DataFrame:
+def load_excel_dataset(file_path: str, sheet_name: str = 'Sheet1') -> pd.DataFrame:
     """
-    Load the thyroid dataset from Excel, drop duplicates, reset index.
+    Load a specified sheet from an Excel file.
     """
-    file_path = path or EXACT_REAL_DATASET
-    df = pd.read_excel(file_path, sheet_name=SHEET_NAME)
-    df = df.drop_duplicates().reset_index(drop=True)
-    return df
+    sheets = pd.read_excel(file_path, sheet_name=None)
+    if sheet_name not in sheets:
+        raise ValueError(f"Sheet '{sheet_name}' not found in {file_path}. Available sheets: {list(sheets.keys())}")
+    return sheets[sheet_name]

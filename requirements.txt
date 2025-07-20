@@ -58,5 +58,7 @@ sqlalchemy-jsonapi>=0.1.0
 sqlalchemy-audit>=0.1.0
 sqlalchemy-continents>=0.1.0
 sqlalchemy-geojson>=0.1.0
-
+matplotlib.pyplot>=3.4.0
 sqlalchemy-serializer>=0.1.0
+seaborn>=0.11.0
+statsmodels>=0.12.0
