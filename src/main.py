@@ -9,15 +9,14 @@ from thyroid_analysis.preprocessing import (
 from thyroid_analysis.eda import analyze_categorical_columns
 
 def main():
+    # Step 0: Load the dataset
     file_path = 'data/ExactRealDatasetLU.xlsx'
-    
-    # Load data
     df = load_excel_dataset(file_path)
 
-    # Step 1: Remove duplicates
+    # Step 1: Remove duplicate rows
     df = remove_duplicates(df, verbose=True)
 
-    # Step 2: Convert specific columns to numeric
+    # Step 2: Convert relevant thyroid columns to numeric (coerce errors)
     thyroid_columns = [
         'first TSH', 'last TSH', 'first T4', 'last T4',
         'first T3', 'first FT4', 'last FT4', 'first FT3', 'last FT3'
@@ -27,12 +26,17 @@ def main():
     # Step 3: Enforce correct data types
     df = enforce_column_types(df)
 
-    # Step 4: Analyze categorical variables (optional in scripts)
+    # Step 4: Analyze categorical variables
     categorical_columns = ['Sex', 'Smoking', 'Marital status']
-    analyze_categorical_columns(df, categorical_columns, show_plots=False)  # Set True if using in notebook
+    analyze_categorical_columns(
+        df,
+        columns=categorical_columns,
+        show_plots=False,  # Set to True if you want to view them interactively
+        save_dir="outputs/eda"  # Save visualizations here
+    )
 
-    # Final preview
-    print("\nFinal preview of dataset:")
+    # Step 5: Final data preview
+    print("\nPreview of final cleaned and typed dataset:")
     print(df.head(10))
 
 
