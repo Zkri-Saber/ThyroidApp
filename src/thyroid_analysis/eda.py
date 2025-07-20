@@ -5,18 +5,12 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
 
-def analyze_categorical_columns(df: pd.DataFrame, columns: list, show_plots: bool = True, save_dir: str = "outputs/eda"):
+def analyze_categorical_columns(df: pd.DataFrame, columns: list, show_plots: bool = True, save_dir: str = "outputs"):
     """
     Print frequency tables and plot bar charts for each categorical column.
-    Saves plots to specified directory.
-
-    Parameters:
-    - df (pd.DataFrame): The dataset
-    - columns (list): List of categorical column names
-    - show_plots (bool): If True, displays plots
-    - save_dir (str): Directory path where plots will be saved
+    Saves plots to the specified directory.
     """
-    os.makedirs(save_dir, exist_ok=True)  # Create directory if it doesn't exist
+    os.makedirs(save_dir, exist_ok=True)
 
     for column in columns:
         print(f"\nFrequency Table for '{column}':")
@@ -39,16 +33,9 @@ def analyze_categorical_columns(df: pd.DataFrame, columns: list, show_plots: boo
         else:
             plt.close()
 
-
-def analyze_numerical_columns(df: pd.DataFrame, columns: list, show_plots: bool = True, save_dir: str = "outputs/eda"):
+def analyze_numerical_columns(df: pd.DataFrame, columns: list, show_plots: bool = True, save_dir: str = "outputs"):
     """
-    Generate histograms and boxplots for a list of numerical columns.
-
-    Parameters:
-    - df (pd.DataFrame): DataFrame containing the data.
-    - columns (list): List of numerical column names to plot.
-    - show_plots (bool): Whether to display plots.
-    - save_dir (str): Directory path where plots will be saved.
+    Generate histograms, boxplots, and print + save summary statistics for a list of numerical columns.
     """
     os.makedirs(save_dir, exist_ok=True)
 
@@ -74,3 +61,13 @@ def analyze_numerical_columns(df: pd.DataFrame, columns: list, show_plots: bool 
             plt.show()
         else:
             plt.close()
+
+    # Compute and print summary statistics
+    summary_statistics = df[columns].describe()
+    print("\nSummary Statistics for Key Numerical Variables:")
+    print(summary_statistics)
+
+    # Save to CSV in the same directory
+    csv_path = os.path.join(save_dir, "summary_statistics.csv")
+    summary_statistics.to_csv(csv_path)
+    print(f"Saved summary statistics to: {csv_path}")
