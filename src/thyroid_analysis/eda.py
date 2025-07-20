@@ -38,3 +38,39 @@ def analyze_categorical_columns(df: pd.DataFrame, columns: list, show_plots: boo
             plt.show()
         else:
             plt.close()
+
+
+def analyze_numerical_columns(df: pd.DataFrame, columns: list, show_plots: bool = True, save_dir: str = "outputs/eda"):
+    """
+    Generate histograms and boxplots for a list of numerical columns.
+
+    Parameters:
+    - df (pd.DataFrame): DataFrame containing the data.
+    - columns (list): List of numerical column names to plot.
+    - show_plots (bool): Whether to display plots.
+    - save_dir (str): Directory path where plots will be saved.
+    """
+    os.makedirs(save_dir, exist_ok=True)
+
+    for column in columns:
+        plt.figure(figsize=(12, 5))
+
+        # Histogram
+        plt.subplot(1, 2, 1)
+        sns.histplot(df[column], kde=True)
+        plt.title(f'Histogram of {column}')
+
+        # Box Plot
+        plt.subplot(1, 2, 2)
+        sns.boxplot(x=df[column])
+        plt.title(f'Box Plot of {column}')
+
+        plt.tight_layout()
+        filename = os.path.join(save_dir, f"{column.replace(' ', '_')}_eda_plot.png")
+        plt.savefig(filename)
+        print(f"Saved EDA plot: {filename}")
+
+        if show_plots:
+            plt.show()
+        else:
+            plt.close()
