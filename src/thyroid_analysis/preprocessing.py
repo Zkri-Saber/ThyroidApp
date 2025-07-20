@@ -83,13 +83,10 @@ def encode_categorical_columns(df: pd.DataFrame, verbose: bool = True) -> pd.Dat
 
 
 def map_diagnostic_groups(df: pd.DataFrame, verbose: bool = True) -> pd.DataFrame:
-    """
-    Maps 'Dx' to a simplified diagnostic group in new column 'Diagnostic Group'.
-    """
     mapping = {
         'No Disease': 'No Disease',
-        'Hyperthyroidism': 'Hyperthyroidism',
         'Hyperthyroidisim': 'Hyperthyroidism',
+        'Hyperthyroidism': 'Hyperthyroidism',
         'hyperthyroid': 'Hyperthyroidism',
         'hyper for 2 ys': 'Hyperthyroidism',
         'hyperthyroid for 15 month': 'Hyperthyroidism',
@@ -98,21 +95,17 @@ def map_diagnostic_groups(df: pd.DataFrame, verbose: bool = True) -> pd.DataFram
         'Graves Disease (GD), Hyperthyroidism': 'Hyperthyroidism',
         'Hyperthyroidism, Multinodular Goiter (MNG)': 'Hyperthyroidism',
         'Hyperthyroidism, Suspicious Thyroid Nodule': 'Hyperthyroidism',
-        'Hyperthyroidism, Multinodular Goiter (MNG), Suspicious Thyroid Nodule': 'Hyperthyroidism',
-        'Euthyroid, Papillary Thyroid Carcinoma (PTC)': 'Euthyroid',
-        'Euthyroid, Thyroid Nodule': 'Euthyroid',
-        'Euthyroid, Suspicious Thyroid Nodule': 'Euthyroid',
-        'Euthyroid, Multinodular Goiter (MNG)': 'Euthyroid',
         'Euthyroid': 'Euthyroid',
         'euthyroid': 'Euthyroid',
+        'Euthyroid, Papillary Thyroid Carcinoma (PTC)': 'Euthyroid',
+        'Euthyroid, Multinodular Goiter (MNG)': 'Euthyroid',
+        'Euthyroid, Thyroid Nodule': 'Euthyroid',
         'Hypothyroidism': 'Hypothyroidism',
         'hypothyroid': 'Hypothyroidism',
+        'Chronic Thyroiditis, Hypothyroidism': 'Hypothyroidism',
         'Hypothyroidism, Suspicious Thyroid Nodule': 'Hypothyroidism',
         'Hypothyroidism, Papillary Thyroid Carcinoma (PTC)': 'Hypothyroidism',
-        'Hypothyroidism, Multinodular Goiter (MNG)': 'Hypothyroidism',
-        'Hypothyroidism, Multinodular Goiter (MNG), Suspicious Thyroid Nodule': 'Hypothyroidism',
-        'Chronic Thyroiditis, Hypothyroidism': 'Hypothyroidism',
-        'Hypothyroidism, Papillary Thyroid Microcarcinoma': 'Hypothyroidism',
+        'Hypothyroidism, Multinodular Goiter (MNG)': 'Hypothyroidism'
     }
 
     df['Diagnostic Group'] = df['Dx'].map(mapping)
@@ -120,5 +113,25 @@ def map_diagnostic_groups(df: pd.DataFrame, verbose: bool = True) -> pd.DataFram
     if verbose:
         print("\nDiagnostic group counts:")
         print(df['Diagnostic Group'].value_counts())
+
+    return df
+
+
+def encode_diagnostic_group(df: pd.DataFrame, verbose: bool = True) -> pd.DataFrame:
+    diagnostic_group_mapping = {
+        'No Disease': 0,
+        'Hyperthyroidism': 1,
+        'Euthyroid': 2,
+        'Hypothyroidism': 3
+    }
+
+    df['Diagnostic Group Code'] = df['Diagnostic Group'].map(diagnostic_group_mapping)
+
+    if verbose:
+        print("\nUnique values in 'Diagnostic Group':")
+        print(df['Diagnostic Group'].unique())
+
+        print("\nHead of dataset after encoding 'Diagnostic Group':")
+        print(df[['Diagnostic Group', 'Diagnostic Group Code']].head())
 
     return df
