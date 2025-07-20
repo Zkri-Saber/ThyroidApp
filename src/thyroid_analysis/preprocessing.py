@@ -11,23 +11,30 @@ def convert_to_numeric(df: pd.DataFrame, cols=None) -> pd.DataFrame:
     return df
 
 def impute_knn(df: pd.DataFrame, k: int = KNN_K) -> pd.DataFrame:
+    # Only impute numeric columns
+    num_cols = df.select_dtypes(include=[np.number]).columns
     imputer = KNN(k=k)
-    df[df.columns] = imputer.fit_transform(df)
+    imputed = imputer.fit_transform(df[num_cols])
+    df[num_cols] = imputed
     return df
 
 def impute_mice(df: pd.DataFrame) -> pd.DataFrame:
+    # Only impute numeric columns
+    num_cols = df.select_dtypes(include=[np.number]).columns
     imputer = IterativeImputer(random_state=42)
-    df[df.columns] = imputer.fit_transform(df)
+    imputed = imputer.fit_transform(df[num_cols])
+    df[num_cols] = imputed
     return df
 
 def detect_and_remove_outliers(df: pd.DataFrame) -> pd.DataFrame:
-    iso = IsolationForest(contamination=0.01, random_state=42)
+    # Use only numeric data to detect outliers
     numeric = df.select_dtypes(include=[np.number])
+    iso = IsolationForest(contamination=0.01, random_state=42)
     mask = iso.fit_predict(numeric)
-    return df[mask == 1].reset_index(drop=True)
+    return df.loc[mask == 1].reset_index(drop=True)
 
 def standardize(df: pd.DataFrame) -> pd.DataFrame:
     scaler = StandardScaler()
-    numeric = df.select_dtypes(include=[np.number])
-    df[numeric.columns] = scaler.fit_transform(numeric)
+    numeric = df.select_dtypes(include=[np.number]).columns
+    df[numeric] = scaler.fit_transform(df[numeric])
     return df
