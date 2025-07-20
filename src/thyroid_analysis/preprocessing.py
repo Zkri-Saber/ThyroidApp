@@ -61,3 +61,35 @@ def enforce_column_types(df: pd.DataFrame, verbose: bool = True) -> pd.DataFrame
         print(df[list(type_map.keys())].dtypes)
 
     return df
+
+
+def encode_categorical_columns(df: pd.DataFrame, verbose: bool = True) -> pd.DataFrame:
+    """
+    Apply predefined mappings to categorical columns: Sex, Smoking, Marital status.
+    """
+    sex_mapping = {'Male': 0, 'Female': 1}
+    smoking_mapping = {'No': 0, 'Passive': 1, 'Active': 2}
+    marital_status_mapping = {'single': 0, 'married': 1}
+
+    df['Sex'] = df['Sex'].map(sex_mapping)
+    df['Smoking'] = df['Smoking'].map(smoking_mapping)
+    df['Marital status'] = df['Marital status'].map(marital_status_mapping)
+
+    if verbose:
+        print("\nEncoded values (Age, Sex, Smoking, Marital status):")
+        print(df[['Age', 'Sex', 'Smoking', 'Marital status']].head())
+
+        # Check for unmapped values
+        if df['Sex'].isnull().any():
+            print("\n⚠️ Unmapped 'Sex' values:")
+            print(df[df['Sex'].isnull()])
+
+        if df['Smoking'].isnull().any():
+            print("\n⚠️ Unmapped 'Smoking' values:")
+            print(df[df['Smoking'].isnull()])
+
+        if df['Marital status'].isnull().any():
+            print("\n⚠️ Unmapped 'Marital status' values:")
+            print(df[df['Marital status'].isnull()])
+
+    return df
