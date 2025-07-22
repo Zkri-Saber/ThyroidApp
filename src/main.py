@@ -23,14 +23,7 @@ from thyroid_analysis.eda import (
     analyze_numerical_columns,
     visualize_missing_data
 )
-
-def kl_divergence(p_series, q_series, bins=10):
-    """
-    Compute the KL divergence between two numerical distributions.
-    """
-    p = np.histogram(p_series.dropna(), bins=bins, density=True)[0] + 1e-6
-    q = np.histogram(q_series.dropna(), bins=bins, density=True)[0] + 1e-6
-    return entropy(p, q)
+from thyroid_analysis.KL_divergence import compute_kl_for_all_features, plot_kl_divergence
 
 def main():
     file_path = 'data/ExactRealDatasetLU.xlsx'
@@ -87,8 +80,8 @@ def main():
 
     # Save only the NaN-related rows with a timestamped filename
     timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
-    filename = f"multi_column_nan_rows_comparison_{timestamp}.csv"
-    nan_comparison_path = os.path.join(comparison_dir, filename)
+    nan_filename = f"multi_column_nan_rows_comparison_{timestamp}.csv"
+    nan_comparison_path = os.path.join(comparison_dir, nan_filename)
     nan_comparison_df.to_csv(nan_comparison_path, index=False)
     print(f"✅ Saved NaN-filtered comparison to: {nan_comparison_path}")
 
@@ -117,20 +110,13 @@ def main():
     print("✅ File exists after save (MICE)?", os.path.exists(mice_path))
 
     # =========== 📊 KL Divergence Evaluation ===========
-    print("\n📊 KL Divergence (Original vs Imputed):")
-    kl_results = []
-    for col in columns_to_compare:
-        try:
-            kl_knn = kl_divergence(df_original[col], df_knn_imputed[col])
-            kl_mice = kl_divergence(df_original[col], df_mice_imputed[col])
-            print(f"🔹 {col} → KL(KNN) = {kl_knn:.4f}, KL(MICE) = {kl_mice:.4f}")
-            kl_results.append({'Feature': col, 'KL(KNN)': kl_knn, 'KL(MICE)': kl_mice})
-        except Exception as e:
-            print(f"⚠️ Error processing {col}: {e}")
-            kl_results.append({'Feature': col, 'KL(KNN)': None, 'KL(MICE)': None})
+    kl_df = compute_kl_for_all_features(df_original, df_knn_imputed, df_mice_imputed, columns_to_compare)
+    plot_kl_divergence(kl_df)
 
-    kl_df = pd.DataFrame(kl_results)
-    kl_output_path = os.path.join(comparison_dir, "kl_divergence_comparison.csv")
+    # Save KL results to timestamped CSV
+    timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
+    kl_filename = f"kl_divergence_comparison_{timestamp}.csv"
+    kl_output_path = os.path.join(comparison_dir, kl_filename)
     kl_df.to_csv(kl_output_path, index=False)
     print(f"✅ KL divergence results saved to: {kl_output_path}")
 
