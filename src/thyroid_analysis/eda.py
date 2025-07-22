@@ -4,6 +4,7 @@ import os
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
+import missingno as msno
 
 def analyze_categorical_columns(df: pd.DataFrame, columns: list, show_plots: bool = True, save_dir: str = "outputs/eda"):
     """
@@ -74,3 +75,33 @@ def analyze_numerical_columns(df: pd.DataFrame, columns: list, show_plots: bool 
             plt.show()
         else:
             plt.close()
+
+def visualize_missing_data(df: pd.DataFrame, stage: str, save_dir: str = "outputs/eda/imputed"):
+    """
+    Visualize missing data using missingno before and after imputation.
+
+    Parameters:
+    - df (pd.DataFrame): Dataset
+    - stage (str): Label for the current stage (e.g., 'before', 'after_knn', 'after_mice')
+    - save_dir (str): Directory path to save the plots
+    """
+    
+    # Drop unwanted columns from visualization
+    columns_to_exclude = ['Diagnostic Group', 'Diagnostic Group Code']
+    df_plot = df.drop(columns=[col for col in columns_to_exclude if col in df.columns])
+
+    os.makedirs(save_dir, exist_ok=True)
+
+    plt.figure(figsize=(12, 6))
+    ax = msno.matrix(df_plot)
+    plt.xticks(rotation=45)
+    plt.title(f"Missing Data Matrix ({stage})", loc='center', fontsize=14, pad=20)
+    plt.xlabel("Features")
+    plt.ylabel("Records")
+    plt.tight_layout()
+    plt.savefig(os.path.join(save_dir, f"missing_matrix_{stage}.png"))
+    plt.close()
+
+    print(f"Saved missing data plot for {stage}.")
+
+

@@ -1,5 +1,11 @@
 # src/main.py
 
+# src/main.py
+
+import os 
+import pandas as pd
+import altair as alt
+
 from thyroid_analysis.data_loader import load_excel_dataset
 from thyroid_analysis.preprocessing import (
     convert_thyroid_columns_to_numeric,
@@ -10,15 +16,14 @@ from thyroid_analysis.preprocessing import (
     drop_irrelevant_columns,
     impute_missing_values_knn,
     impute_missing_values_mice,
-    
 )
-from thyroid_analysis.pipeline import df
 from thyroid_analysis.eda import (
     analyze_categorical_columns,
-    analyze_numerical_columns
+    analyze_numerical_columns,
+    visualize_missing_data
 )
 
-import altair as alt
+
 
 
 def main():
@@ -93,12 +98,12 @@ def main():
         ).interactive()
 
         chart.save(f'{col}_barchart.json')
-
+    
     # Step 11: Impute missing values using KNN and MICE
     print("Missing values before imputation:")
     print(df.isnull().sum()[df.isnull().sum() > 0]) 
     if df.isnull().sum().any():
-        print("Imputing missing values...")
+         print("Imputing missing values...")
     # Impute using KNN
 
     df = impute_missing_values_knn(df)
@@ -108,6 +113,36 @@ def main():
     df = impute_missing_values_mice(df)
     print("After MICE Imputation:")
     print(df.isnull().sum()[df.isnull().sum() > 0])
+
+
+        # Save a copy of the original dataset BEFORE imputation
+    df_original = df.copy()
+
+    # Visualize missing data before any imputation
+    visualize_missing_data(df_original, stage="before", save_dir="outputs/eda/imputed")
+
+    # Apply imputations without mutating original
+    df_knn_imputed = impute_missing_values_knn(df_original)
+    visualize_missing_data(df_knn_imputed, stage="after_knn", save_dir="outputs/eda/imputed")
+
+    df_mice_imputed = impute_missing_values_mice(df_original)
+    visualize_missing_data(df_mice_imputed, stage="after_mice", save_dir="outputs/eda/imputed")
+
+    # Compare imputed values for 'first TSH'
+    comparison_df = pd.DataFrame({
+    'Original': df['first TSH'],
+    'KNN Imputed': df_knn_imputed['first TSH'],
+    'MICE Imputed': df_mice_imputed['first TSH']
+})
+
+    # Filter to show only rows where the original 'first TSH' was NaN
+    nan_comparison_df = comparison_df[comparison_df['Original'].isna()]
+
+    # Display the filtered comparison DataFrame
+    print("Comparison of Imputed Values (first TSH) where Original was NaN:")
+    print(nan_comparison_df.head(20))
+
+
 
 
 if __name__ == "__main__":
