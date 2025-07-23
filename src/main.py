@@ -7,6 +7,7 @@ import datetime
 import numpy as np
 from scipy.stats import entropy
 
+from thyroid_analysis.feature_selection import select_features_consensus
 from thyroid_analysis.data_loader import load_excel_dataset
 from thyroid_analysis.preprocessing import (
     convert_thyroid_columns_to_numeric,
